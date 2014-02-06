@@ -10,6 +10,9 @@
 
 #define WIDTH 1920
 #define HEIGHT 1080
+#define SPRITESIZE 32
+
+SDL_Rect rcSrc, rcSprite;
 
 
 static void repaint() {
@@ -44,7 +47,11 @@ static void setup_sdl() {
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
 
+	// Set title
 	SDL_WM_SetCaption( "Totally Bananas?", NULL );
+
+	// Enable keyboard repeat
+	SDL_EnableKeyRepeat(70, 70);
 
 	if (SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_OPENGL | SDL_FULLSCREEN) == 0) {
 		fprintf(stderr, "Couldn't set video mode: %s\n", SDL_GetError());
@@ -71,6 +78,27 @@ static void setup_opengl() {
 
 static void main_loop() {
 	SDL_Event event;
+	SDL_Surface *screen, *sprite, *temp;
+	int colorkey;
+
+	// Load sprite
+	temp = SDL_LoadBMP("girl.bmp");
+	sprite = SDL_DisplayFormat(temp);
+	SDL_FreeSurface(temp);
+
+	// Setup sprite colorkey and load RLE
+	colorkey = SDL_MapRGB(screen->format, 255, 0, 255);
+	SDL_SetColorKey(sprite, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
+
+	// Set sprite position
+	rcSprite.x = 150;
+	rcSprite.y = 150;
+
+	// Set animation frame
+	rcSrc.x = 128;
+	rcSrc.y = 0;
+	rcSrc.w = SPRITESIZE;
+	rcSrc.h = SPRITESIZE;
 
 	while (1) {
 		// Process pending events
